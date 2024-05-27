@@ -5,6 +5,7 @@ import { Button, Card, TextInput } from "flowbite-react";
 import api from "../../utilities/api"
 
 export default function Login() {
+    document.title = "PADP721 Web Backoffice | Login"
     const dispatch = useDispatch()
 
     const [formValues, setFormValues] = useState({

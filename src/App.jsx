@@ -3,6 +3,9 @@ import { Suspense } from "react"
 import { useSelector } from "react-redux"
 import { GuestRoutes, AuthRoutes } from "./routes"
 import Layout from "./components/Layout"
+import { Flowbite } from "flowbite-react"
+import FullscreenLoading from "./components/FullscreenLoading"
+import CUSTOM_THEME from "./assets/theme"
 
 export default function App() {
     const isLogin = useSelector(state => state.auth.isLogin)
@@ -20,8 +23,10 @@ export default function App() {
     )
 
     return (
-        <Suspense fallback={<>LOADING...</>}>
-            <RouterProvider router={ROUTER} />
-        </Suspense>
+        <Flowbite theme={{ theme: CUSTOM_THEME }}>
+            <Suspense fallback={<FullscreenLoading />}>
+                <RouterProvider router={ROUTER} />
+            </Suspense>
+        </Flowbite>
     )
 }
