@@ -4,8 +4,8 @@ import { useSelector } from "react-redux"
 import { GuestRoutes, AuthRoutes } from "./routes"
 import Layout from "./components/Layout"
 import { Flowbite } from "flowbite-react"
-import FullscreenLoading from "./components/FullscreenLoading"
 import CUSTOM_THEME from "./assets/theme"
+import FullscreenLoading from "./components/Loading"
 
 export default function App() {
     const isLogin = useSelector(state => state.auth.isLogin)

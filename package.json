@@ -16,6 +16,7 @@
     "flowbite-react": "^0.9.0",
     "gridjs": "^6.2.0",
     "gridjs-react": "^6.1.1",
+    "immer": "^10.1.1",
     "jwt-decode": "^4.0.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.4",
@@ -26,6 +27,7 @@
     "sort-by": "^1.2.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react-swc": "^3.5.0",

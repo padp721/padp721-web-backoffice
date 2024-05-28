@@ -3,7 +3,7 @@ import { Avatar, DarkThemeToggle, Drawer, Dropdown, Navbar as FBNavbar } from "f
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/slices/auth";
-import api from "../utilities/api";
+import { API } from "../utilities/axios";
 import Sidebar from "./Sidebar";
 import { setDrawerIsOpen } from "../store/slices/sidebar";
 import userImage from "../assets/images/user.jpg"
@@ -28,7 +28,7 @@ export default function Navbar() {
     }
 
     useEffect(() => {
-        api.get(`/b/user/${userId}`)
+        API.get(`/user/${userId}`)
             .then(res => {
                 const { data } = res.data
                 setProfile(data)
@@ -40,7 +40,7 @@ export default function Navbar() {
         <FBNavbar fluid>
             <div className="flex">
                 <FBNavbar.Brand href="/">
-                    <img src="/favicon.ico" className="mr-3 h-6 sm:h-9" alt="Flowbite React Logo" />
+                    <img src="/favicon.ico" className="mr-3 h-6 sm:h-9" alt="padp721" />
                     <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white hidden md:block">{import.meta.env.VITE_APP_NAME}</span>
                 </FBNavbar.Brand>
                 <button className="block md:hidden" onClick={() => dispatch(setDrawerIsOpen(!drawerIsOpen))}>
@@ -48,7 +48,7 @@ export default function Navbar() {
                 </button>
             </div>
             <div className="flex md:order-2">
-                <DarkThemeToggle />
+                {/* <DarkThemeToggle /> */}
                 <Dropdown
                     arrowIcon={false}
                     inline

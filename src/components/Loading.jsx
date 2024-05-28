@@ -7,3 +7,11 @@ export default function FullscreenLoading() {
         </div>
     )
 }
+
+export const Loading = () => {
+    return (
+        <div className="flex items-center justify-center h-full">
+            <Spinner size="xl" />
+        </div>
+    )
+}

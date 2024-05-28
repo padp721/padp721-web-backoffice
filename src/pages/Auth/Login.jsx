@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../../store/slices/auth";
-import { Button, Card, TextInput } from "flowbite-react";
-import api from "../../utilities/api"
+import { Button, Card, FloatingLabel } from "flowbite-react";
+import { AUTH } from "../../utilities/axios";
+import { produce } from "immer";
 
 export default function Login() {
     document.title = "PADP721 Web Backoffice | Login"
@@ -14,14 +15,14 @@ export default function Login() {
     })
 
     function handleFormOnChange(e) {
-        const { value, name } = e.target
-        setFormValues({ ...formValues, [name]: value })
+        const { name, value } = e.target
+        setFormValues(produce(draft => { draft[name] = value }))
     }
 
     function handleLogin(e) {
         e.preventDefault()
 
-        api.post("/auth/login", formValues)
+        AUTH.post("/login", formValues)
             .then(res => {
                 const { token } = res.data.data
                 dispatch(login({ token }))
@@ -35,8 +36,8 @@ export default function Login() {
             <Card className="w-96">
                 <h1 className="text-2xl text-center"><b>Login</b></h1>
                 <form onSubmit={handleLogin} className="flex flex-col gap-3">
-                    <TextInput name="username" placeholder="Username" value={formValues.username} onChange={handleFormOnChange} required />
-                    <TextInput name="password" placeholder="Password" value={formValues.password} onChange={handleFormOnChange} required />
+                    <FloatingLabel variant="outlined" label="Username" name="username" value={formValues.username} onChange={handleFormOnChange} required />
+                    <FloatingLabel variant="outlined" label="Password" name="password" value={formValues.password} onChange={handleFormOnChange} required />
                     <Button type="submit">Login</Button>
                 </form>
             </Card>

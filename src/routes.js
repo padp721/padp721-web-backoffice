@@ -2,7 +2,7 @@ import { lazy } from "react";
 
 //* GUEST ROUTES
 const Login = lazy(() => import("./pages/Auth/Login"))
-const Loading = lazy(() => import("./components/FullscreenLoading"))
+const Loading = lazy(() => import("./components/Loading"))
 
 //* AUTH ROUTES
 const Dashboard = lazy(() => import("./pages/Dashboard"))
