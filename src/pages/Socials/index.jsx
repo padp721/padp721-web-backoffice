@@ -1,12 +1,13 @@
 import { Button, Card, FloatingLabel, Modal } from "flowbite-react"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import CardHeader from "../../components/CardHeader"
 import Table from "../../components/Table";
 import { API } from "../../utilities/axios";
 import { _ as formatCell } from "gridjs-react"
 import { Loading } from "../../components/Loading";
-import { HiLink, HiPencil, HiTrash, HiPlus } from "react-icons/hi"
+import { HiLink, HiPencil, HiTrash, HiPlus, HiOutlineExclamationCircle } from "react-icons/hi"
 import { produce } from "immer";
+import { toast } from "react-toastify";
 
 export default function Socials() {
     document.title = "PADP721 Web Backoffice | Socials"
@@ -15,11 +16,11 @@ export default function Socials() {
         page: false,
         modal: false
     })
-    const [data, setData] = useState([])
     const [isOpen, setIsOpen] = useState({
         modalInput: false,
         modalDelete: false
     })
+    const [data, setData] = useState([])
     const [social, setSocial] = useState({
         id: "",
         name: "",
@@ -29,12 +30,12 @@ export default function Socials() {
         icon: "",
     })
 
-    const onChangeSocialForm = (e) => {
+    const onChangeSocialForm = useCallback((e) => {
         const { name, value } = e.target
         setSocial(produce(draft => { draft[name] = value }))
-    }
+    }, [])
 
-    const onCloseInputModal = () => {
+    const onCloseInputModal = useCallback(() => {
         setIsOpen(produce(draft => { draft.modalInput = false }))
         setSocial({
             id: "",
@@ -44,11 +45,19 @@ export default function Socials() {
             icon_type: "",
             icon: "",
         })
-    }
+    }, [])
 
-    const onSubmitSocialForm = (e) => {
-        e.preventDefault()
-    }
+    const onCloseDeleteModal = useCallback(() => {
+        setIsOpen(produce(draft => { draft.modalDelete = false }))
+        setSocial({
+            id: "",
+            name: "",
+            url: "",
+            color: "",
+            icon_type: "",
+            icon: "",
+        })
+    }, [])
 
     const getSocialsData = useCallback(() => {
         setIsLoading(produce(draft => { draft.page = true }))
@@ -65,7 +74,7 @@ export default function Socials() {
             .finally(() => setIsLoading(produce(draft => { draft.page = false })))
     }, [])
 
-    const getSocialData = useCallback((id) => {
+    const getSocialIndividual = useCallback((id) => {
         setIsLoading(produce(draft => { draft.modal = true }))
         API.get(`/social/${id}`)
             .then(res => {
@@ -78,7 +87,64 @@ export default function Socials() {
             .finally(() => setIsLoading(produce(draft => { draft.modal = false })))
     }, [])
 
-    const COLUMNS = [
+    const onSubmitSocialForm = useCallback((e) => {
+        e.preventDefault()
+
+        Object.entries(social).forEach(kv => {
+            if (kv[0] !== 'id' && kv[1] === "") {
+                toast.warn(`Field ${kv[0]} cannot be empty!`)
+                return false
+            }
+        })
+
+        const data = {
+            name: social.name,
+            url: social.url,
+            color: social.color,
+            icon_type: social.icon_type,
+            icon: social.icon,
+        }
+
+        toast.promise(
+            social.id !== "" ? API.put(`/social/${social.id}`, data) : API.post("/social", data),
+            {
+                pending: "Submitting data...",
+                success: {
+                    render({ data: res }) {
+                        onCloseInputModal()
+                        getSocialsData()
+                        return res.data.message
+                    }
+                },
+                error: {
+                    render({ data }) {
+                        const res = data.response
+                        return res.data.message
+                    }
+                },
+            })
+    }, [social, onCloseInputModal, getSocialsData])
+
+    const deleteSocial = useCallback((id) => {
+        toast.promise(API.delete(`/social/${id}`), {
+                pending: "Deleting data...",
+                success: {
+                    render({ data: res }) {
+                        setData((curState) => curState.filter(row => row.id !== id))
+                        onCloseDeleteModal()
+                        return res.data.message
+                    }
+                },
+                error: {
+                    render({ data }) {
+                        const res = data.response
+                        return res.data.message
+                    }
+                },
+            })
+    }, [onCloseDeleteModal])
+
+    const COLUMNS = useMemo(() => [
         {
             id: "name",
             name: "Name"
@@ -97,13 +163,23 @@ export default function Socials() {
                     </a>
                     <Button color="warning" onClick={() => {
                         setIsOpen(produce(draft => { draft.modalInput = true }))
-                        getSocialData(cell)
+                        getSocialIndividual(cell)
                     }}><HiPencil className="m-auto mr-1" />Edit</Button>
-                    <Button color="failure"><HiTrash className="m-auto mr-1" />Delete</Button>
+                    <Button color="failure" onClick={() => {
+                        setIsOpen(produce(draft => { draft.modalDelete = true }))
+                        setSocial(produce(draft => { draft.id = cell }))
+                    }}><HiTrash className="m-auto mr-1" />Delete</Button>
                 </div>
             )
         },
-    ]
+    ], [getSocialIndividual])
+
+    const table = useMemo(() => (
+        <Table
+            columns={COLUMNS}
+            data={data}
+        />
+    ), [data, COLUMNS])
 
     useEffect(() => {
         getSocialsData()
@@ -122,12 +198,9 @@ export default function Socials() {
                         <Button onClick={() => setIsOpen(produce(draft => { draft.modalInput = true }))}><HiPlus className="m-auto mr-1" />Add Social</Button>
                     </div>
                 </CardHeader>
-                <Table
-                    columns={COLUMNS}
-                    data={data}
-                />
+                {table}
             </Card>
-            
+
             {/* MODAL INPUT */}
             <Modal show={isOpen.modalInput} onClose={onCloseInputModal}>
                 <Modal.Header>
@@ -148,6 +221,25 @@ export default function Socials() {
                         <Button color="gray" onClick={onCloseInputModal}>Close</Button>
                     </Modal.Footer>
                 </form>
+            </Modal>
+
+            {/* MODAL DELETE */}
+            <Modal show={isOpen.modalDelete} onClose={onCloseDeleteModal} size={'md'} popup>
+                <Modal.Header />
+                <Modal.Body className="text-center">
+                    <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+                    <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                        Are you sure you want to delete this social?
+                    </h3>
+                    <div className="flex justify-center gap-4">
+                        <Button color="failure" onClick={() => deleteSocial(social.id)}>
+                            {"Yes, I'm sure"}
+                        </Button>
+                        <Button color="gray" onClick={onCloseDeleteModal}>
+                            No, cancel
+                        </Button>
+                    </div>
+                </Modal.Body>
             </Modal>
         </React.Fragment>
     )
