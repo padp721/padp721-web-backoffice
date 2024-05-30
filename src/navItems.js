@@ -1,4 +1,4 @@
-import { HiPhone, HiChartPie, HiUser, HiFolder, HiPuzzle } from "react-icons/hi";
+import { HiPhone, HiChartPie, HiUser, HiUsers, HiFolder, HiPuzzle } from "react-icons/hi";
 
 const NAV_ITEMS = [
     {
@@ -10,6 +10,11 @@ const NAV_ITEMS = [
         path: "/socials",
         name: "Socials",
         icon: HiPuzzle
+    },
+    {
+        path: "/users",
+        name: "Users",
+        icon: HiUsers
     },
     {
         path: "#",

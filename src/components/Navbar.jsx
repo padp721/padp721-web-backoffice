@@ -1,5 +1,5 @@
 
-import { Avatar, DarkThemeToggle, Drawer, Dropdown, Navbar as FBNavbar } from "flowbite-react";
+import { Avatar, Drawer, Dropdown, Navbar as FBNavbar } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/slices/auth";
@@ -7,7 +7,7 @@ import { API } from "../utilities/axios";
 import Sidebar from "./Sidebar";
 import { setDrawerIsOpen } from "../store/slices/sidebar";
 import userImage from "../assets/images/user.jpg"
-import { HiMenu } from "react-icons/hi"
+import { HiMenu, HiHome } from "react-icons/hi"
 
 export default function Navbar() {
     const userId = useSelector(state => state.auth.userId)
@@ -41,14 +41,13 @@ export default function Navbar() {
             <div className="flex">
                 <FBNavbar.Brand href="/">
                     <img src="/favicon.ico" className="mr-3 h-6 sm:h-9" alt="padp721" />
-                    <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white hidden md:block">{import.meta.env.VITE_APP_NAME}</span>
+                    <span className="self-center whitespace-nowrap text-xl font-semibold text-white hidden md:block">{import.meta.env.VITE_APP_NAME}</span>
                 </FBNavbar.Brand>
                 <button className="block md:hidden" onClick={() => dispatch(setDrawerIsOpen(!drawerIsOpen))}>
-                    <HiMenu size={25}/>
+                    <HiMenu size={25} className="text-white" />
                 </button>
             </div>
             <div className="flex md:order-2">
-                {/* <DarkThemeToggle /> */}
                 <Dropdown
                     arrowIcon={false}
                     inline
@@ -66,9 +65,11 @@ export default function Navbar() {
                 </Dropdown>
             </div>
             <Drawer open={drawerIsOpen} onClose={() => dispatch(setDrawerIsOpen(false))}>
-                <Drawer.Header title={import.meta.env.VITE_APP_NAME} titleIcon={() => <></>} />
-                <Drawer.Items>
+                <Drawer.Header title={import.meta.env.VITE_APP_NAME} titleIcon={HiHome} />
+                <Drawer.Items className="flex flex-col justify-between">
                     <Sidebar />
+                    <hr />
+                    <code className="text-xs mt-4">&copy; {new Date().getFullYear()} padp721</code>
                 </Drawer.Items>
             </Drawer>
         </FBNavbar>

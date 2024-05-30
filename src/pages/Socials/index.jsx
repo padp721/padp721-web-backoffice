@@ -20,6 +20,7 @@ export default function Socials() {
         modalInput: false,
         modalDelete: false
     })
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const [data, setData] = useState([])
     const [social, setSocial] = useState({
         id: "",
@@ -65,11 +66,12 @@ export default function Socials() {
             .then(res => {
                 const data = res.data.data
                 if (data.length > 0) {
-                    setData(data)
+                    setData(data.map((item, idx) => ({...item, idx})))
                 }
             })
             .catch(err => {
                 console.error(err);
+                toast.error(err.response.data.message)
             })
             .finally(() => setIsLoading(produce(draft => { draft.page = false })))
     }, [])
@@ -102,9 +104,10 @@ export default function Socials() {
             url: social.url,
             color: social.color,
             icon_type: social.icon_type,
-            icon: social.icon,
+            ion: social.icon,
         }
 
+        setIsSubmitting(true)
         toast.promise(
             social.id !== "" ? API.put(`/social/${social.id}`, data) : API.post("/social", data),
             {
@@ -122,29 +125,34 @@ export default function Socials() {
                         return res.data.message
                     }
                 },
-            })
+            }).finally(() => setIsSubmitting(false))
     }, [social, onCloseInputModal, getSocialsData])
 
     const deleteSocial = useCallback((id) => {
         toast.promise(API.delete(`/social/${id}`), {
-                pending: "Deleting data...",
-                success: {
-                    render({ data: res }) {
-                        setData((curState) => curState.filter(row => row.id !== id))
-                        onCloseDeleteModal()
-                        return res.data.message
-                    }
-                },
-                error: {
-                    render({ data }) {
-                        const res = data.response
-                        return res.data.message
-                    }
-                },
-            })
+            pending: "Deleting data...",
+            success: {
+                render({ data: res }) {
+                    setData((curState) => curState.filter(row => row.id !== id))
+                    onCloseDeleteModal()
+                    return res.data.message
+                }
+            },
+            error: {
+                render({ data }) {
+                    const res = data.response
+                    return res.data.message
+                }
+            },
+        })
     }, [onCloseDeleteModal])
 
     const COLUMNS = useMemo(() => [
+        {
+            id: "idx",
+            name: "No",
+            formatter: cell => formatCell(<span className="flex justify-center">{cell+1}</span>)
+        },
         {
             id: "name",
             name: "Name"
@@ -192,11 +200,8 @@ export default function Socials() {
     return isLoading.page ? <Loading /> : (
         <React.Fragment>
             <Card>
-                <CardHeader>
-                    <div className="flex justify-between">
-                        <span className="text-3xl font-semibold">Socials</span>
-                        <Button onClick={() => setIsOpen(produce(draft => { draft.modalInput = true }))}><HiPlus className="m-auto mr-1" />Add Social</Button>
-                    </div>
+                <CardHeader headerText="Socials">
+                    <Button onClick={() => setIsOpen(produce(draft => { draft.modalInput = true }))}><HiPlus className="m-auto mr-1" />Add Social</Button>
                 </CardHeader>
                 {table}
             </Card>
@@ -209,16 +214,16 @@ export default function Socials() {
                 <form onSubmit={onSubmitSocialForm}>
                     {isLoading.modal ? <Loading /> : (
                         <Modal.Body>
-                            <FloatingLabel variant="outlined" label="Social Name" name="name" value={social.name} onChange={onChangeSocialForm} required />
-                            <FloatingLabel variant="outlined" label="Social Url" name="url" value={social.url} onChange={onChangeSocialForm} required />
-                            <FloatingLabel variant="outlined" label="Social Color" name="color" value={social.color} onChange={onChangeSocialForm} required />
-                            <FloatingLabel variant="outlined" label="Social Icon Type" name="icon_type" value={social.icon_type} onChange={onChangeSocialForm} required />
-                            <FloatingLabel variant="outlined" label="Social Icon" name="icon" value={social.icon} onChange={onChangeSocialForm} required />
+                            <FloatingLabel disabled={isSubmitting} variant="outlined" label="Social Name" name="name" value={social.name} onChange={onChangeSocialForm} />
+                            <FloatingLabel disabled={isSubmitting} variant="outlined" label="Social Url" name="url" value={social.url} onChange={onChangeSocialForm} />
+                            <FloatingLabel disabled={isSubmitting} variant="outlined" label="Social Color" name="color" value={social.color} onChange={onChangeSocialForm} />
+                            <FloatingLabel disabled={isSubmitting} variant="outlined" label="Social Icon Type" name="icon_type" value={social.icon_type} onChange={onChangeSocialForm} />
+                            <FloatingLabel disabled={isSubmitting} variant="outlined" label="Social Icon" name="icon" value={social.icon} onChange={onChangeSocialForm} />
                         </Modal.Body>
                     )}
                     <Modal.Footer>
-                        <Button type="submit" color="blue">Submit</Button>
-                        <Button color="gray" onClick={onCloseInputModal}>Close</Button>
+                        <Button disabled={isSubmitting} type="submit" color="blue">Submit</Button>
+                        <Button disabled={isSubmitting} color="gray" onClick={onCloseInputModal}>Close</Button>
                     </Modal.Footer>
                 </form>
             </Modal>

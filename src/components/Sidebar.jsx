@@ -42,7 +42,7 @@ export default function Sidebar() {
                         ))
                     }
                 </FBSidebar.ItemGroup>
-                <FBSidebar.ItemGroup>
+                <FBSidebar.ItemGroup className="hidden md:block">
                     <code className="text-xs">&copy; {new Date().getFullYear()} padp721</code>
                 </FBSidebar.ItemGroup>
             </FBSidebar.Items>
