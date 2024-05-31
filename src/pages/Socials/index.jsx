@@ -70,7 +70,7 @@ export default function Socials() {
                 }
             })
             .catch(err => {
-                console.error(err);
+                console.error(err)
                 toast.error(err.response.data.message)
             })
             .finally(() => setIsLoading(produce(draft => { draft.page = false })))
@@ -84,7 +84,8 @@ export default function Socials() {
                 setSocial(data)
             })
             .catch(err => {
-                console.error(err);
+                console.error(err)
+                toast.error(err.response.data.message)
             })
             .finally(() => setIsLoading(produce(draft => { draft.modal = false })))
     }, [])
@@ -92,19 +93,19 @@ export default function Socials() {
     const onSubmitSocialForm = useCallback((e) => {
         e.preventDefault()
 
-        Object.entries(social).forEach(kv => {
-            if (kv[0] !== 'id' && kv[1] === "") {
-                toast.warn(`Field ${kv[0]} cannot be empty!`)
-                return false
-            }
-        })
-
         const data = {
             name: social.name,
             url: social.url,
             color: social.color,
             icon_type: social.icon_type,
-            ion: social.icon,
+            icon: social.icon,
+        }
+
+        for (const [key, value] of Object.entries(data)) {
+            if (value === "") {
+                toast.warn(`Field ${key} cannot be empty!`)
+                return false
+            }
         }
 
         setIsSubmitting(true)
