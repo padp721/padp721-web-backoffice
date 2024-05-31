@@ -1,42 +1,22 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { NavLink, Outlet } from "react-router-dom";
-import { logout } from "../store/slices/auth";
-import { Button } from "flowbite-react";
-import api from "../utilities/api";
+import { Outlet } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
 export default function Layout() {
-    const dispatch = useDispatch()
-
-    function handleLogout() {
-        dispatch(logout())
-        window.location.reload()
-    }
-    
-    function testJwtRequest() {
-        api.get("/b/user").then(res => console.log(res))
-    }
 
     return (
-        <React.Fragment>
+        <div className="flex flex-col h-screen">
             <header>
-                Header
+                <Navbar />
             </header>
-            <nav id="sidebar">
-                <NavLink to="/dashboard">Dashboard</NavLink>
-                <NavLink to="/contact">Contact</NavLink>
-                <NavLink to="/about">About</NavLink>
-            </nav>
-            <Outlet />
-            <footer>
-                Footer
-            </footer>
-            <Button onClick={handleLogout}>
-                Logout
-            </Button>
-            <Button onClick={testJwtRequest}>
-                Test Request with JWT
-            </Button>
-        </React.Fragment>
+            <div className="flex flex-1 overflow-hidden">
+                <aside className="hidden md:block">
+                    <Sidebar />
+                </aside>
+                <main className="flex-1 p-2 overflow-auto">
+                    <Outlet />
+                </main>
+            </div>
+        </div>
     )
 }
